@@ -1,43 +1,39 @@
 pipeline {
-    agent any
-    
+    agent any 
+
     stages {
+        stage('Clone repository') {
+            steps {
+                checkout([$class: 'GitSCM', 
+                    branches: [[name: '*/main']], 
+                    userRemoteConfigs: [[url: 'https://github.com/Sdysmore/PES2UG22CS023_JENKINS_CCLAB.git']]
+                ])
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Building the application...'
-                sh '''
-                    g++ -o PES2UG22CS023-1 hello.cpp
-                    echo "Build completed successfully"
-                '''
+                build 'PES2UG22CS023-1'
+                sh 'g++ main/hello.cpp -o output'  // Intentional error: Missing semicolon in hello.cpp
             }
         }
-        
+
         stage('Test') {
             steps {
-                echo 'Testing the application...'
-                sh '''
-                    ./PES2UG22CS023-1
-                    echo "Testing completed successfully"
-                '''
+                sh './output'
             }
         }
-        
+
         stage('Deploy') {
             steps {
-                echo 'Deploying the application...'
-                sh '''
-                    echo "Deployment completed successfully"
-                '''
+                echo 'deploy'
             }
         }
     }
-    
+
     post {
         failure {
-            echo 'Pipeline failed!'
-        }
-        success {
-            echo 'Pipeline completed successfully!'
+            error 'Pipeline failed'
         }
     }
 }
